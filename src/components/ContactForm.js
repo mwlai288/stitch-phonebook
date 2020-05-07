@@ -9,10 +9,12 @@ const ContactForm = () => {
 	const { addContact, updateContact, clearCurrent, current } = contactContext;
 
 	const [contact, setContact] = useState({
+		file: '',
 		name: '',
-		email: '',
 		phone: '',
+		email: '',
 	});
+
 	const { name, email, phone } = contact;
 
 	useEffect(() => {
@@ -91,6 +93,7 @@ const ContactForm = () => {
 						value={phone}
 					/>
 				</Form.Group>
+
 				<Button variant="primary" type="submit">
 					{current ? 'Update' : 'Add Contact'}
 				</Button>

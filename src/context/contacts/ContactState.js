@@ -1,13 +1,15 @@
 import React, { useReducer } from 'react';
 import { useStitchAuth } from '../auth/StitchAuth';
-import { items } from '../../stitch/mongodb';
+import { items, aws } from '../../stitch/mongodb';
 import ContactContext from './contactContext';
 import contactReducer from './contactReducer';
+import { AwsRequest } from 'mongodb-stitch-browser-services-aws';
 
 const ContactState = (props) => {
 	const initialState = {
 		contacts: null,
 		current: null,
+		image: null,
 	};
 
 	const [state, dispatch] = useReducer(contactReducer, initialState);
@@ -61,17 +63,70 @@ const ContactState = (props) => {
 		dispatch({ type: 'clearCurrent' });
 	};
 
+	// Upload File
+	const convertImageToBSONBinaryObject = (file) => {
+		return new Promise((resolve) => {
+			var fileReader = new FileReader();
+			fileReader.onload = (event) => {
+				resolve({
+					$binary: {
+						base64: event.target.result.split(',')[1],
+						subType: '00',
+					},
+				});
+			};
+			fileReader.readAsDataURL(file);
+		});
+	};
+
+	const handleFileUpload = async (file, _id) => {
+		// Process the image file
+		const fileBinary = await convertImageToBSONBinaryObject(file);
+		// Upload the image binary to S3
+		const key = `${currentUser.id}-${file.name}`;
+		const bucket = 'stitchphonebook';
+		const url = `http://${bucket}.s3.amazonaws.com/${encodeURIComponent(key)}`;
+		const args = {
+			ACL: 'public-read',
+			Bucket: bucket,
+			ContentType: file.type,
+			Key: key,
+			Body: fileBinary,
+		};
+		const request = new AwsRequest.Builder()
+			.withService('s3')
+			.withAction('PutObject')
+			.withRegion('us-east-2')
+			.withArgs(args);
+
+		try {
+			await aws.execute(request.build());
+
+			const query = { _id };
+			const update = { $set: { image: url } };
+			await items.updateOne(query, update);
+			dispatch({
+				type: 'updateContact',
+				payload: url,
+			});
+		} catch (e) {
+			console.log(e);
+		}
+	};
+
 	return (
 		<ContactContext.Provider
 			value={{
 				contacts: state.contacts,
 				current: state.current,
+				image: state.image,
 				loadContacts,
 				addContact,
 				deleteContact,
 				setCurrent,
 				clearCurrent,
 				updateContact,
+				handleFileUpload,
 			}}
 		>
 			{props.children}
@@ -80,3 +135,30 @@ const ContactState = (props) => {
 };
 
 export default ContactState;
+
+// convertImageToBSONBinaryObject(file).then((result) => {
+// 	const key = `${currentUser.id}-${file.name}`;
+// 	const bucket = 'stitchphonebook';
+// 	const url = `http://${bucket}.s3.amazonaws.com/${encodeURIComponent(
+// 		key
+// 	)}`;
+
+// 	const args = {
+// 		ACL: 'public-read',
+// 		Bucket: bucket,
+// 		ContentType: file.type,
+// 		Key: key,
+// 		Body: result,
+// 	};
+// 	const request = new AwsRequest.Builder()
+// 		.withService('s3')
+// 		.withAction('PutObject')
+// 		.withRegion('us-east-2')
+// 		.withArgs(args);
+// 	aws.execute(request.build()).then((result) => {
+// 		console.log(result);
+// 		console.log(url);
+
+// 		return items.insertOne(url);
+// 	});
+// });

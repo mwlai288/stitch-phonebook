@@ -1,4 +1,4 @@
-import React, { /* Fragment */ useEffect, useContext, Fragment } from 'react';
+import React, { useEffect, useContext, Fragment } from 'react';
 import ContactContext from '../context/contacts/contactContext';
 import Spinner from 'react-bootstrap/Spinner';
 import ContactItem from './ContactItem';
@@ -24,11 +24,11 @@ const ContactList = () => {
 					<ContactItem key={contact._id.toString()} contact={contact} />
 				))
 			) : (
-				<Fragment>
+				<div>
 					<Spinner animation="grow" variant="secondary" />
 					<Spinner animation="grow" variant="secondary" />
 					<Spinner animation="grow" variant="secondary" />
-				</Fragment>
+				</div>
 			)}
 		</Fragment>
 	);
