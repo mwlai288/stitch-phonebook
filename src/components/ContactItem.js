@@ -12,6 +12,7 @@ const ContactItem = ({ contact }) => {
 		clearCurrent,
 		setCurrent,
 		handleFileUpload,
+		picture,
 	} = contactContext;
 
 	const fileInput = useRef();
@@ -39,6 +40,24 @@ const ContactItem = ({ contact }) => {
 		handleFileUpload(file, _id);
 	};
 
+	const imageSection = image ? (
+		<Card.Img src={image} />
+	) : picture === null ? (
+		<Form onSubmit={fileSubmit}>
+			<Form.Group>
+				<Form.Label>
+					Upload picture
+					<Form.Control type="file" ref={fileInput} />
+				</Form.Label>
+			</Form.Group>
+			<Button type="submit" variant="secondary" size="sm">
+				Add Photo
+			</Button>
+		</Form>
+	) : (
+		<Card.Img src={picture} />
+	);
+
 	return (
 		<Card>
 			<Card.Body>
@@ -53,21 +72,7 @@ const ContactItem = ({ contact }) => {
 						Delete
 					</Button>
 				</ButtonStyles>
-				{image ? (
-					<Card.Img src={image} />
-				) : (
-					<Form onSubmit={fileSubmit}>
-						<Form.Group>
-							<Form.Label>
-								Upload picture
-								<Form.Control type="file" ref={fileInput} />
-							</Form.Label>
-						</Form.Group>
-						<Button type="submit" variant="secondary" size="sm">
-							Add Photo
-						</Button>
-					</Form>
-				)}
+				{imageSection}
 			</Card.Body>
 		</Card>
 	);

@@ -9,11 +9,12 @@ const ContactState = (props) => {
 	const initialState = {
 		contacts: null,
 		current: null,
-		image: null,
+		picture: null,
 	};
 
 	const [state, dispatch] = useReducer(contactReducer, initialState);
 	const { currentUser } = useStitchAuth();
+
 	// Get Contacts
 	const loadContacts = async () => {
 		const contacts = await items.find({}, { limit: 100 }).asArray();
@@ -63,6 +64,7 @@ const ContactState = (props) => {
 		dispatch({ type: 'clearCurrent' });
 	};
 
+	// Stitch Docs
 	// Upload File
 	const convertImageToBSONBinaryObject = (file) => {
 		return new Promise((resolve) => {
@@ -101,10 +103,10 @@ const ContactState = (props) => {
 
 		try {
 			await aws.execute(request.build());
-
 			const query = { _id };
 			const update = { $set: { image: url } };
-			await items.updateOne(query, update);
+			const options = { upsert: false };
+			await items.updateOne(query, update, options);
 			dispatch({
 				type: 'updateContact',
 				payload: url,
@@ -119,7 +121,7 @@ const ContactState = (props) => {
 			value={{
 				contacts: state.contacts,
 				current: state.current,
-				image: state.image,
+				picture: state.picture,
 				loadContacts,
 				addContact,
 				deleteContact,
@@ -135,30 +137,3 @@ const ContactState = (props) => {
 };
 
 export default ContactState;
-
-// convertImageToBSONBinaryObject(file).then((result) => {
-// 	const key = `${currentUser.id}-${file.name}`;
-// 	const bucket = 'stitchphonebook';
-// 	const url = `http://${bucket}.s3.amazonaws.com/${encodeURIComponent(
-// 		key
-// 	)}`;
-
-// 	const args = {
-// 		ACL: 'public-read',
-// 		Bucket: bucket,
-// 		ContentType: file.type,
-// 		Key: key,
-// 		Body: result,
-// 	};
-// 	const request = new AwsRequest.Builder()
-// 		.withService('s3')
-// 		.withAction('PutObject')
-// 		.withRegion('us-east-2')
-// 		.withArgs(args);
-// 	aws.execute(request.build()).then((result) => {
-// 		console.log(result);
-// 		console.log(url);
-
-// 		return items.insertOne(url);
-// 	});
-// });

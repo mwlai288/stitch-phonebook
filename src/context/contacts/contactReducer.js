@@ -6,6 +6,12 @@ export default (state, action) => {
 				contacts: action.payload,
 				loading: false,
 			};
+		case 'loadPicture': {
+			return {
+				...state,
+				loading: false,
+			};
+		}
 		case 'addContact':
 			return {
 				...state,
@@ -17,9 +23,13 @@ export default (state, action) => {
 				...state,
 				contacts: state.contacts.map((contact) =>
 					contact._id === action.payload.contactId
-						? { ...contact, contact: action.payload.contact }
+						? {
+								...contact,
+								contact: action.payload.contact,
+						  }
 						: contact
 				),
+				picture: action.payload,
 				loading: false,
 			};
 		case 'deleteContact':
@@ -39,6 +49,7 @@ export default (state, action) => {
 			return {
 				...state,
 				current: null,
+				image: null,
 			};
 		default:
 			return state;

@@ -9,7 +9,6 @@ const ContactForm = () => {
 	const { addContact, updateContact, clearCurrent, current } = contactContext;
 
 	const [contact, setContact] = useState({
-		file: '',
 		name: '',
 		phone: '',
 		email: '',
