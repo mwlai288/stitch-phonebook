@@ -9,7 +9,6 @@ const ContactState = (props) => {
 	const initialState = {
 		contacts: null,
 		current: null,
-		picture: null,
 	};
 
 	const [state, dispatch] = useReducer(contactReducer, initialState);
@@ -104,7 +103,7 @@ const ContactState = (props) => {
 		try {
 			await aws.execute(request.build());
 			const query = { _id };
-			const update = { $set: { image: url } };
+			const update = { $set: { 'contact.image': url } };
 			const options = { upsert: false };
 			await items.updateOne(query, update, options);
 			dispatch({
@@ -116,6 +115,14 @@ const ContactState = (props) => {
 		}
 	};
 
+	// Delete File
+
+	const deleteImage = async (_id) => {
+		const query = { _id };
+		const update = { $set: { 'contact.image': null } };
+		const options = { upsert: false };
+		await items.updateOne(query, update, options);
+	};
 	return (
 		<ContactContext.Provider
 			value={{
@@ -129,6 +136,7 @@ const ContactState = (props) => {
 				clearCurrent,
 				updateContact,
 				handleFileUpload,
+				deleteImage,
 			}}
 		>
 			{props.children}

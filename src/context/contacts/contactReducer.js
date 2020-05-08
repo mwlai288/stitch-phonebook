@@ -29,8 +29,6 @@ export default (state, action) => {
 						  }
 						: contact
 				),
-				picture: action.payload,
-				loading: false,
 			};
 		case 'deleteContact':
 			return {
@@ -49,7 +47,6 @@ export default (state, action) => {
 			return {
 				...state,
 				current: null,
-				image: null,
 			};
 		default:
 			return state;

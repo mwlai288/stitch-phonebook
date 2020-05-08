@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useRef, Fragment, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import ContactContext from '../context/contacts/contactContext';
 import Card from 'react-bootstrap/Card';
@@ -12,13 +12,14 @@ const ContactItem = ({ contact }) => {
 		clearCurrent,
 		setCurrent,
 		handleFileUpload,
-		picture,
+		loadContacts,
+		deleteImage,
 	} = contactContext;
 
 	const fileInput = useRef();
 
-	const { _id, image } = contact;
-	const { name, email, phone } = contact.contact;
+	const { _id } = contact;
+	const { name, email, phone, image } = contact.contact;
 
 	const onDelete = () => {
 		deleteContact(_id);
@@ -38,25 +39,17 @@ const ContactItem = ({ contact }) => {
 		e.preventDefault();
 		const file = fileInput.current.files[0];
 		handleFileUpload(file, _id);
+		setTimeout(() => {
+			loadContacts();
+		}, 3000);
 	};
 
-	const imageSection = image ? (
-		<Card.Img src={image} />
-	) : picture === null ? (
-		<Form onSubmit={fileSubmit}>
-			<Form.Group>
-				<Form.Label>
-					Upload picture
-					<Form.Control type="file" ref={fileInput} />
-				</Form.Label>
-			</Form.Group>
-			<Button type="submit" variant="secondary" size="sm">
-				Add Photo
-			</Button>
-		</Form>
-	) : (
-		<Card.Img src={picture} />
-	);
+	const deletePicture = () => {
+		deleteImage(_id);
+		setTimeout(() => {
+			loadContacts();
+		}, 1400);
+	};
 
 	return (
 		<Card>
@@ -72,7 +65,24 @@ const ContactItem = ({ contact }) => {
 						Delete
 					</Button>
 				</ButtonStyles>
-				{imageSection}
+				{image ? (
+					<Fragment>
+						<DeleteButton onClick={deletePicture}>X</DeleteButton>
+						<Card.Img src={image} />
+					</Fragment>
+				) : (
+					<Form onSubmit={fileSubmit}>
+						<Form.Group>
+							<Form.Label>
+								Upload picture
+								<Form.Control type="file" ref={fileInput} />
+							</Form.Label>
+						</Form.Group>
+						<Button type="submit" variant="secondary" size="sm">
+							Add Photo
+						</Button>
+					</Form>
+				)}
 			</Card.Body>
 		</Card>
 	);
@@ -87,4 +97,8 @@ const ButtonStyles = styled.div`
 	button:first-child {
 		margin-right: 5px;
 	}
+`;
+
+const DeleteButton = styled.span`
+	cursor: pointer;
 `;
