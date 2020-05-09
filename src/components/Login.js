@@ -69,7 +69,6 @@ const ButtonText = styled.p`
 `;
 
 const LoginBox = styled.div`
-	border: 3px solid black;
 	display: flex;
 	flex-direction: column;
 	align-items: center;

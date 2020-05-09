@@ -29,6 +29,7 @@ export default (state, action) => {
 						  }
 						: contact
 				),
+				loading: true,
 			};
 		case 'deleteContact':
 			return {
@@ -36,7 +37,7 @@ export default (state, action) => {
 				contacts: state.contacts.filter(
 					(contact) => contact._id !== action.payload
 				),
-				loading: false,
+				loading: true,
 			};
 		case 'setCurrent':
 			return {

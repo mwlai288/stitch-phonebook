@@ -21,7 +21,7 @@ export default Dashboard;
 
 const Body = styled.div`
 	margin: 0 auto;
-	width: 80%;
+	width: 70%;
 	font-family: 'Tinos', serif;
 `;
 

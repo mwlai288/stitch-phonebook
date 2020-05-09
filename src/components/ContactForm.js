@@ -2,6 +2,9 @@ import React, { useState, Fragment, useContext, useEffect } from 'react';
 import ContactContext from '../context/contacts/contactContext';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
+import styled from 'styled-components';
+import { AiOutlineInfoCircle, AiOutlineClose } from 'react-icons/ai';
 
 const ContactForm = () => {
 	const contactContext = useContext(ContactContext);
@@ -14,6 +17,9 @@ const ContactForm = () => {
 		email: '',
 	});
 
+	const [fieldErrors, setFieldErrors] = useState(false);
+	const [phoneError, setPhoneError] = useState(false);
+
 	const { name, email, phone } = contact;
 
 	useEffect(() => {
@@ -22,6 +28,7 @@ const ContactForm = () => {
 				name: current.contact.name,
 				email: current.contact.email,
 				phone: current.contact.phone,
+				image: current.contact.image,
 			});
 		} else {
 			setContact({
@@ -38,17 +45,17 @@ const ContactForm = () => {
 	const handleAddContact = (e) => {
 		e.preventDefault();
 		if (current === null) {
-			if (contact) {
-				if (contact.phone.length === 10) {
-					addContact(contact);
-					setContact({
-						name: '',
-						email: '',
-						phone: '',
-					});
-				} else {
-					alert('Enter 10 digit phone number');
-				}
+			if (name === '' && email === '' && phone === '') {
+				setFieldErrors(true);
+			} else if (contact.phone.length !== 10) {
+				setPhoneError(true);
+			} else {
+				addContact(contact);
+				setContact({
+					name: '',
+					email: '',
+					phone: '',
+				});
 			}
 		} else {
 			updateContact(current._id, contact);
@@ -58,7 +65,36 @@ const ContactForm = () => {
 
 	return (
 		<Fragment>
-			{current ? 'Edit Contact' : 'Add Contact'}
+			<Heading>{current ? 'Edit Contact' : 'Add Contact'}</Heading>
+			<Alert show={fieldErrors} variant="danger">
+				<Alert.Heading>
+					<AiOutlineInfoCircle />
+					One or more fields are empty
+					<div className="d-flex justify-content-end">
+						<Button
+							onClick={() => setFieldErrors(false)}
+							variant="outline-danger"
+						>
+							<AiOutlineClose />
+						</Button>
+					</div>
+				</Alert.Heading>
+			</Alert>
+			<Alert show={phoneError} variant="danger">
+				<Alert.Heading>
+					<AiOutlineInfoCircle />
+					Please enter a 10 digit phone number.
+					<div className="d-flex justify-content-end">
+						<Button
+							onClick={() => setPhoneError(false)}
+							variant="outline-danger"
+						>
+							<AiOutlineClose />
+						</Button>
+					</div>
+				</Alert.Heading>
+			</Alert>
+
 			<Form onSubmit={handleAddContact}>
 				<Form.Group>
 					<Form.Label>Name</Form.Label>
@@ -102,3 +138,27 @@ const ContactForm = () => {
 };
 
 export default ContactForm;
+
+const Heading = styled.div`
+	display: flex;
+	justify-content: center;
+	font-size: 3rem;
+`;
+
+// if (current === null) {
+// 	if (contact) {
+// 		if (contact.phone.length === 10) {
+// 			addContact(contact);
+// 			setContact({
+// 				name: '',
+// 				email: '',
+// 				phone: '',
+// 			});
+// 		} else {
+// 			alert('Enter 10 digit phone number');
+// 		}
+// 	}
+// } else {
+// 	updateContact(current._id, contact);
+// 	clearCurrent();
+// }
